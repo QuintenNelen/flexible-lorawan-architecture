@@ -1,0 +1,10 @@
+{
+    "name": "node-red-project",
+    "description": "A Node-RED Project",
+    "version": "0.0.1",
+    "private": true,
+    "dependencies": {
+        "bcrypt": "^5.1.0",
+        "fs": "^0.0.1-security"
+    }
+}
