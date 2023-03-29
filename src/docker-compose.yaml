@@ -1,0 +1,89 @@
+version: "3"
+services:
+  nodered:
+    build:
+      context: ./nodered
+      dockerfile: ./Dockerfile
+    depends_on:
+      - influxdb
+      - mosquitto
+    links:
+      - mosquitto
+    ports:
+      - 1880:1880
+    environment:
+      - TZ=${TIMEZONE}
+      - NODE_RED_ROOT_PASSWORD=${NODE_RED_ROOT_PASSWORD}
+      - NODE_RED_CREDENTIAL_SECRET=${NODE_RED_CREDENTIAL_SECRET}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_ORG}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_BUCKET}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_TOKEN}
+    volumes: #TODO Fix embedding flows auth
+      #- nodered:/data
+      - ./nodered/data/:/data
+      #- ./nodered/data/flows.json:/data/flows.json
+      #- ./nodered/data/flows_cred.json:/data/flows_cred.json
+      #- ./nodered/data/settings.js:/data/settings.js
+
+  influxdb:
+    build:
+      context: .
+      dockerfile: ./influxdb/Dockerfile
+    ports:
+      - 8086:8086 # https://localhost:8086 #TODO: Do we need to open this port to the public?
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    environment:
+      - TZ=${TIMEZONE}
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_USERNAME}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_PASSWD}
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUXDB_ORG}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_BUCKET}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_TOKEN}
+      - DOCKER_INFLUXDB_INIT_CLI_CONFIG_NAME=FLWSB
+    restart: on-failure:10
+
+  mosquitto:
+    build:
+      context: ./mosquitto
+      dockerfile: ./Dockerfile
+    ports:
+      - 1883:1883
+      - 9001:9001 #TODO: Nothing is listening on this port?
+    volumes:
+      - mosquitto:/mosquitto
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    environment:
+      - TZ=${TIMEZONE}
+      - MOSQUITTO_USER=${MOSQUITTO_USER}
+      - MOSQUITTO_PASSWD=${MOSQUITTO_PASSWD}
+    restart: on-failure:10
+
+  grafana:
+    image: grafana/grafana:latest
+    depends_on:
+      - nodered
+      - influxdb
+    ports:
+      - 3000:3000
+    links:
+      - "nodered:api" # http://api:1880/flwsb-api/v1/
+      - "influxdb" # http://influxdb:8086
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWD}
+      - GRAFANA_INFLUX_BUCKET=${INFLUXDB_BUCKET}
+      - GRAFANA_INFLUX_TOKEN=${INFLUXDB_TOKEN}
+      - GRAFANA_INFLUX_ORG=${INFLUXDB_ORG}
+    volumes:
+      - ./grafana:/etc/grafana/provisioning
+      - grafana:/var/lib/grafana
+    restart: on-failure:10
+
+volumes:
+  nodered:
+  grafana:
+  influxdb_data:
+  mosquitto:
