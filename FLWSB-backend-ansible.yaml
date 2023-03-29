@@ -1,6 +1,6 @@
 ---
-- name: Raspberry pi server @ KIST
-  hosts: kistpi
+- name: Hetzner server for FLWSB backend
+  hosts: FLWSB-hetzner
   user: '{{ user }}'
   tasks:
 
