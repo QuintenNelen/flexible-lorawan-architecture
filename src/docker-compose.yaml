@@ -16,9 +16,10 @@ services:
       - TZ=${TIMEZONE}
       - NODE_RED_ROOT_PASSWORD=${NODE_RED_ROOT_PASSWORD}
       - NODE_RED_CREDENTIAL_SECRET=${NODE_RED_CREDENTIAL_SECRET}
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_ORG}
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_BUCKET}
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_TOKEN}
+      # nobody knows what those variables do and ansible complains about them :)
+      #- DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_ORG}
+      #- DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_BUCKET}
+      #- DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_TOKEN}
     volumes: #TODO Fix embedding flows auth
       #- nodered:/data
       - ./nodered/data/:/data
