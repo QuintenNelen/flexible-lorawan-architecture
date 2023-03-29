@@ -1,7 +1,7 @@
 version: "3"
 services:
   nodered:
-    name: flwsb-nodered
+    container_name: flwsb-nodered
     build:
       context: ./nodered
       dockerfile: ./Dockerfile
@@ -27,7 +27,7 @@ services:
       #- ./nodered/data/settings.js:/data/settings.js
 
   influxdb:
-    name: flwsb-influxdb
+    container_name: flwsb-influxdb
     build:
       context: .
       dockerfile: ./influxdb/Dockerfile
@@ -47,7 +47,7 @@ services:
     restart: on-failure:10
 
   mosquitto:
-    name: flwsb-mosquitto
+    container_name: flwsb-mosquitto
     build:
       context: ./mosquitto
       dockerfile: ./Dockerfile
@@ -64,7 +64,7 @@ services:
     restart: on-failure:10
 
   grafana:
-    name: flwsb-grafana
+    container_name: flwsb-grafana
     image: grafana/grafana:latest
     depends_on:
       - nodered
