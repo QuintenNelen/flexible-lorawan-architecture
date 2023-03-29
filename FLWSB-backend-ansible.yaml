@@ -1,0 +1,88 @@
+---
+- name: Raspberry pi server @ KIST
+  hosts: kistpi
+  user: '{{ user }}'
+  tasks:
+
+# RUN THIS PLAYBOOK: ansible-playbook FLWSB-backend-ansible.yaml -K
+# -K -> ask become password (root)
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
+
+    - name: Install dependencies
+      ansible.builtin.apt:
+        pkg:
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+      become: true
+
+    - name: Add Docker's GPG key
+      ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+      become: true
+
+    - name: Add Docker repo
+      ansible.builtin.apt_repository:
+        repo: deb https://download.docker.com/linux/debian bullseye stable
+        # get architecture: dpkg --print-architecture
+        # get lsb release: lsb_release -cs
+        state: present
+      become: true
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+         update_cache: true
+      become: true
+
+    - name: Install Docker Engine
+      ansible.builtin.apt:
+        pkg:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+      become: true
+      
+    - name: Verify install
+      community.docker.docker_container:
+        name: HelloWorld
+        image: hello-world
+      become: true
+
+# TODO not sure if this is necessary
+#    - name: Make sure pip is installed
+#      ansible.builtin.apt:
+#        pkg:
+#          - pip
+
+# commented out to save time while testing
+#    - name: Copy docker-compose.yaml & .env file
+#      ansible.builtin.copy:
+#        src: src/
+#        dest: /home/pi/src/ # TODO change destination
+#      with_fileglob:
+#        - *
+#        - .* # make sure to copy .env file
+
+# TODO this throws an error, something to do with python modules (docker & docker-compose)
+# find a way to start the docker-compose file
+    - name: Tear down existing services
+      community.docker.docker_compose:
+        project_src: /home/pi # change this
+        state: absent
+      become: yes
+
+    - name: Start docker compose
+      community.docker.docker_compose:
+        project_src: /home/pi # change this
+        env_file: /home/pi/src/.env # and this
+      register: output
+      become: yes
