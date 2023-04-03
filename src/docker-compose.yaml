@@ -5,8 +5,8 @@ services:
     image: nginx:latest
     container_name: flwbs-nginx
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-#      - ./nginx.conf:/etc/nginx/sites-available/default
+#      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx.conf:/etc/nginx/sites-available/default
       - ./nginx/error.log:/etc/nginx/error_log.log
       - ./nginx/cache/:/etc/nginx/cache
       - /etc/letsencrypt/:/etc/letsencrypt/
@@ -26,8 +26,8 @@ services:
       - mosquitto
     links:
       - mosquitto
-    ports:
-      - 1880:1880
+    #ports:
+    #  - 1880:1880
     environment:
       - TZ=${TIMEZONE}
       - NODE_RED_ROOT_PASSWORD=${NODE_RED_ROOT_PASSWORD}
@@ -49,8 +49,8 @@ services:
     build:
       context: .
       dockerfile: ./influxdb/Dockerfile
-    ports:
-      - 8086:8086 # https://localhost:8086 #TODO: Do we need to open this port to the public?
+    #ports:
+    #  - 8086:8086 # https://localhost:8086
     volumes:
       - influxdb_data:/var/lib/influxdb2
     environment:
@@ -88,8 +88,8 @@ services:
       - nginx
       - nodered
       - influxdb
-    ports:
-      - 3000:3000
+    #ports:
+    #  - 3000:3000
     links:
       - "nodered:api" # http://api:1880/flwsb-api/v1/
       - "influxdb" # http://influxdb:8086
