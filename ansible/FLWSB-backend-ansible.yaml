@@ -16,7 +16,7 @@
       become: true
 
     - name: Install packages
-      apt:
+      ansible.builtin.apt:
         pkg:
           - ca-certificates
           - curl
@@ -26,7 +26,7 @@
           - certbot
           - python3-certbot-nginx
         state: present
-        become: true
+      become: true
 
     - name: Add Docker's GPG key
       ansible.builtin.apt_key:
@@ -44,7 +44,7 @@
 
     - name: Update apt cache
       ansible.builtin.apt:
-         update_cache: true
+        update_cache: true
       become: true
 
     - name: Install Docker Engine
@@ -57,7 +57,7 @@
           - docker-compose-plugin
         state: present
       become: true
-      
+
     - name: Verify install
       community.docker.docker_container:
         name: HelloWorld
@@ -80,24 +80,25 @@
         src: .env
         # copy inside cloned git repo
         dest: ~/flexible-lorawan-architecture/src/.env
+        mode: preserve # keep same permissions as source file
 
     - name: Generate SSL certificates
-      command: certbot certonly --agree-tos --email "{{ email }}" --standalone -d {{ item }}
+      ansible.builtin.command: certbot certonly --agree-tos --email "{{ email }}" --standalone -d {{ item }}
       args:
         creates: "/etc/letsencrypt/live/{{ item }}"
       with_items: "{{ domains }}"
 
     - name: Renew certificates
-      cron:
+      ansible.builtin.cron:
         name: "Renew SSL certs"
         job: "certbot renew --quiet --post-hook 'systemctl reload nginx'"
         minute: "0"
         hour: "0"
         weekday: "1"
-        # crontab runs every monday at 00:00 
+        # crontab runs every monday at 00:00
 
     - name: Bring docker compose up
       community.docker.docker_compose:
         project_src: flexible-lorawan-architecture/src/
         files:
-        - docker-compose.yaml
+          - docker-compose.yaml
