@@ -8,8 +8,11 @@
       - nodered.iot-ap.be
   tasks:
 
-# RUN THIS PLAYBOOK: ansible-playbook FLWSB-backend-ansible.yaml -K
+# RUN THIS PLAYBOOK: ansible-playbook -K -i ansible.cfg FLWSB-backend-ansible.yaml
 # -K -> ask become password (root)
+# -i -> specify ansible config file
+# optional: add -v, -vv or -vvv to increase verbosity (more logs, handy when troubleshooting)
+
     - name: Update apt cache
       ansible.builtin.apt:
         update_cache: true
@@ -23,6 +26,7 @@
           - gnupg
           - lsb-release
           - pip
+          - git
           - certbot
           - python3-certbot-nginx
         state: present
@@ -69,11 +73,13 @@
         name:
           - docker
           - docker-compose
+      become: true
 
     - name: Clone git repo
       ansible.builtin.git:
         repo: "https://github.com/jappie3/flexible-lorawan-architecture"
         dest: ~/flexible-lorawan-architecture/
+        force: true # overwrite existing repo (with possibly changes)
 
     - name: Copy .env file from local machine to remote server
       ansible.builtin.copy:
@@ -87,6 +93,7 @@
       args:
         creates: "/etc/letsencrypt/live/{{ item }}"
       with_items: "{{ domains }}"
+      become: true
 
     - name: Renew certificates
       ansible.builtin.cron:
@@ -102,3 +109,4 @@
         project_src: flexible-lorawan-architecture/src/
         files:
           - docker-compose.yaml
+      become: true
