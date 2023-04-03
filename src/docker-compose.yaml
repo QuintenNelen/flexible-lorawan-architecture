@@ -3,7 +3,7 @@ services:
 
   nginx: 
     image: nginx:latest
-    container_name: flwbs-nginx
+    container_name: flwsb-nginx
     volumes:
 #      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx.conf:/etc/nginx/sites-available/default
