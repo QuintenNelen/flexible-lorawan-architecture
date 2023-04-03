@@ -2,25 +2,31 @@
 - name: Hetzner server for FLWSB backend
   hosts: FLWSB-hetzner
   user: '{{ user }}'
+  vars:
+    domains:
+      - grafana.iot-ap.be
+      - nodered.iot-ap.be
   tasks:
 
 # RUN THIS PLAYBOOK: ansible-playbook FLWSB-backend-ansible.yaml -K
 # -K -> ask become password (root)
-
     - name: Update apt cache
       ansible.builtin.apt:
         update_cache: true
       become: true
 
-    - name: Install dependencies
-      ansible.builtin.apt:
+    - name: Install packages
+      apt:
         pkg:
           - ca-certificates
           - curl
           - gnupg
           - lsb-release
           - pip
-      become: true
+          - certbot
+          - python3-certbot-nginx
+        state: present
+        become: true
 
     - name: Add Docker's GPG key
       ansible.builtin.apt_key:
@@ -74,6 +80,21 @@
         src: .env
         # copy inside cloned git repo
         dest: ~/flexible-lorawan-architecture/src/.env
+
+    - name: Generate SSL certificates
+      command: certbot certonly --agree-tos --email "{{ email }}" --standalone -d {{ item }}
+      args:
+        creates: "/etc/letsencrypt/live/{{ item }}"
+      with_items: "{{ domains }}"
+
+    - name: Renew certificates
+      cron:
+        name: "Renew SSL certs"
+        job: "certbot renew --quiet --post-hook 'systemctl reload nginx'"
+        minute: "0"
+        hour: "0"
+        weekday: "1"
+        # crontab runs every monday at 00:00 
 
     - name: Bring docker compose up
       community.docker.docker_compose:
