@@ -6,40 +6,10 @@ services:
     container_name: flwsb-nginx
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/site.conf
-      - ./nginx/error.log:/etc/nginx/error_log.log
-      - ./nginx/cache/:/etc/nginx/cache
       - /etc/letsencrypt/:/etc/letsencrypt/
     ports:
       - 80:80
       - 443:443
-    restart: on-failure:10
-
-  nodered:
-    container_name: flwsb-nodered
-    build:
-      context: ./nodered
-      dockerfile: ./Dockerfile
-    depends_on:
-      - influxdb
-      - mosquitto
-    links:
-      - mosquitto
-    #ports:
-    #  - 1880:1880
-    environment:
-      - TZ=${TIMEZONE}
-      - NODE_RED_ROOT_PASSWORD=${NODE_RED_ROOT_PASSWORD}
-      - NODE_RED_CREDENTIAL_SECRET=${NODE_RED_CREDENTIAL_SECRET}
-      # nobody knows what those variables do and ansible complains about them :)
-      #- DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_ORG}
-      #- DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_BUCKET}
-      #- DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_TOKEN}
-    volumes: #TODO Fix embedding flows auth
-      #- nodered:/data
-      - ./nodered/data/:/data
-      #- ./nodered/data/flows.json:/data/flows.json
-      #- ./nodered/data/flows_cred.json:/data/flows_cred.json
-      #- ./nodered/data/settings.js:/data/settings.js
     restart: on-failure:10
 
   influxdb:
@@ -47,8 +17,8 @@ services:
     build:
       context: .
       dockerfile: ./influxdb/Dockerfile
-    #ports:
-    #  - 8086:8086 # https://localhost:8086
+    ports:
+      - 127.0.0.1:8086:8086 # for debugging
     volumes:
       - influxdb_data:/var/lib/influxdb2
     environment:
@@ -69,7 +39,6 @@ services:
       dockerfile: ./Dockerfile
     ports:
       - 1883:1883
-      - 9001:9001 #TODO: Nothing is listening on this port?
     volumes:
       - mosquitto:/mosquitto
       - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
@@ -85,11 +54,6 @@ services:
     depends_on:
       - nodered
       - influxdb
-    #ports:
-    #  - 3000:3000
-    links:
-      - "nodered:api" # http://api:1880/flwsb-api/v1/
-      - "influxdb" # http://influxdb:8086
     environment:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
