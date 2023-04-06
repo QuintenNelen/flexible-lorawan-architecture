@@ -78,6 +78,7 @@
     - name: Clone git repo
       ansible.builtin.git:
         repo: "https://github.com/jappie3/flexible-lorawan-architecture"
+        version: LATEST #
         dest: ~/flexible-lorawan-architecture/
         force: true # overwrite existing repo (with possibly changes)
 
