@@ -5,7 +5,7 @@
   vars:
     domains:
       - grafana.iot-ap.be
-      - nodered.iot-ap.be
+      - api.iot-ap.be
   tasks:
 
 # RUN THIS PLAYBOOK: ansible-playbook -K -i ansible.cfg FLWSB-backend-ansible.yaml
