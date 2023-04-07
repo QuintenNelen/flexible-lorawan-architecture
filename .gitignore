@@ -1,4 +1,5 @@
 .env
+node_modules/
 mosquitto.passwd
 flows_cred.json
 settings.js
