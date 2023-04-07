@@ -3,9 +3,9 @@
   hosts: all
   user: '{{ user }}'
   vars:
-     domains:
-       - grafana.iot-ap.be
-       - api.iot-ap.be
+    domains:
+      - grafana.iot-ap.be
+      - api.iot-ap.be
     wireguard_server_address: "10.10.10.1/24"
     allowed_ips1: "10.10.10.2/32"
     allowed_ips2: "10.10.10.3/32"
@@ -13,7 +13,7 @@
 
   roles:
     - role: wireguard-setup
-   tasks:
+  tasks:
 
 # RUN THIS PLAYBOOK: ansible-playbook -K -i ansible.cfg FLWSB-backend-ansible.yaml
 # -K -> ask become password (root)
@@ -48,8 +48,8 @@
     - name: Add Docker repo
       ansible.builtin.apt_repository:
         repo: deb https://download.docker.com/linux/debian bullseye stable
-         get architecture: dpkg --print-architecture
-         get lsb release: lsb_release -cs
+          # get architecture: dpkg --print-architecture
+          # get lsb release: lsb_release -cs
         state: present
       become: true
 
