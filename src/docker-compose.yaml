@@ -67,7 +67,8 @@ services:
       - GRAFANA_INFLUX_TOKEN=${INFLUXDB_TOKEN}
       - GRAFANA_INFLUX_ORG=${INFLUXDB_ORG}
     volumes:
-      - ./grafana:/etc/grafana/provisioning
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
       - grafana:/var/lib/grafana
     restart: on-failure:10
 
