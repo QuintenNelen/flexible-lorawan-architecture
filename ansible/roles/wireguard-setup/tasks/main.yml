@@ -100,11 +100,11 @@
     backrefs: true
   become: true
 
-- name: Start wireguard service
+- name: Reload wireguard service
   ansible.builtin.systemd:
     name: wg-quick@wg0
     enabled: true
-    state: started
+    state: reloaded
   become: true
 
 - name: Add client public key to server

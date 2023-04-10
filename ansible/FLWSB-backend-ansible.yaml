@@ -6,13 +6,6 @@
     domains:
       - grafana.iot-ap.be
       - api.iot-ap.be
-    wireguard_server_address: "10.10.10.1/24"
-    allowed_ips1: "10.10.10.2/32"
-    allowed_ips2: "10.10.10.3/32"
-    listen_port: 51820
-
-  roles:
-    - role: wireguard-setup
   tasks:
 
 # RUN THIS PLAYBOOK: ansible-playbook -K -i ansible.cfg FLWSB-backend-ansible.yaml
