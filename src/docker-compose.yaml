@@ -131,7 +131,7 @@ services:
   metadatameasurements:
     container_name: flwsb-metadatameasurements
     build:
-      context: ./metadata
+      context: ./metadatameasurements
       dockerfile: ./Dockerfile
     depends_on:
       - influxdb
