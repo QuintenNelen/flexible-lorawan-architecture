@@ -6,6 +6,8 @@
     domains:
       - grafana.iot-ap.be
       - api.iot-ap.be
+  roles:
+    - ufwinstall
   tasks:
 
 # RUN THIS PLAYBOOK: ansible-playbook -K -i ansible.cfg FLWSB-backend-ansible.yaml
