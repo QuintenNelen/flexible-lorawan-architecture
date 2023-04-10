@@ -1,6 +1,21 @@
 sensorBtn = document.getElementById("sensorBtn");
 boardBtn = document.getElementById("boardBtn");
 weatherStationBtn = document.getElementById("weatherStationBtn");
+
+const forms = [
+  document.getElementById("sensorForm"),
+  document.getElementById("boardForm"),
+  document.getElementById("stationForm"),
+];
+document.getElementById("clearBtn1").addEventListener("click", (event) => {
+  clearForms(forms);
+});
+document.getElementById("clearBtn2").addEventListener("click", (event) => {
+  clearForms(forms);
+});
+document.getElementById("clearBtn3").addEventListener("click", (event) => {
+  clearForms(forms);
+});
 sensorBtn.addEventListener("click", (event) => {
   submitForm(event);
 });
@@ -12,13 +27,6 @@ weatherStationBtn.addEventListener("click", (event) => {
 });
 
 function submitForm(event) {
-  // Get form data
-  const forms = [
-    document.getElementById("sensorForm"),
-    document.getElementById("boardForm"),
-    document.getElementById("stationForm"),
-  ];
-
   // Create an object to store the form data
   const formData = {};
 
