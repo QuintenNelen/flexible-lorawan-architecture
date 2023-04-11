@@ -38,47 +38,46 @@ client.subscribe(topic, function (err) {
 client.on("message", function (topic, message) {
   console.log("message is " + message);
   console.log("topic is " + topic);
-  const payload = JSON.parse(message);
-  if (topic.slice(-2)=="up"){//payload.hasOwnProperty("uplink_message.decoded_payload")) {
+  const payloadmsg = JSON.parse(message);
+  if (topic.slice(-2) == "up") {
+    //payload.hasOwnProperty("uplink_message.decoded_payload")) {
     let executed = false;
-    const point = new Point("sensor_data").tag(
+    let point = new Point("sensor_data").tag(
       "id",
-      payload.end_device_ids.device_id
+      payloadmsg.end_device_ids.device_id
     );
-    const errorbyte = payload.uplink_message.decoded_payload.errorbyte;
+    const payload = payloadmsg.uplink_message.decoded_payload;
+    const errorbyte = payloadmsg.uplink_message.decoded_payload.errorbyte;
     if (errorbyte.toString(2).slice(-1) != "1") {
-      point
-        .floatField(
-          "humidity_BME",
-          payload.uplink_message.decoded_payload.humidity_BME
-        )
-        .floatField(
-          "pressure_BME",
-          payload.uplink_message.decoded_payload.pressure_BME
-        )
-        .floatField(
-          "temp_BME",
-          payload.uplink_message.decoded_payload.temp_BME
-        );
+      if (payload.humidity_BME <= 100 && payload.humidity_BME >= 0) {
+        point.floatField("humidity_BME", payload.humidity_BME);
+      }
+      if (payload.pressure_BME <= 1100 && payload.pressure_BME >= 300) {
+        point.floatField("pressure_BME", payload.pressure_BME);
+      }
+      if (payload.temp_BME <= 85 && payload.temp_BME >= -40) {
+        point.floatField("temp_BME", payload.temp_BME);
+      }
       executed = true;
     }
     if (errorbyte.toString(2).slice(-2, -1) != "1") {
-      point
-        .intField("CO2_SCD", payload.uplink_message.decoded_payload.CO2_SCD)
-        .floatField(
-          "humidity_SCD",
-          payload.uplink_message.decoded_payload.humidity_SCD
-        )
-        .floatField(
-          "temp_SCD",
-          payload.uplink_message.decoded_payload.temp_SCD
-        );
+      if (payload.CO2_SCD <= 5000 && payload.CO2_SCD >= 400) {
+        point.intField("CO2_SCD", payload.CO2_SCD);
+      }
+      if (payload.humidity_SCD <= 95 && payload.humidity_SCD >= 0) {
+        point.floatField("humidity_SCD", payload.humidity_SCD);
+      }
+      if (payload.temp_SCD <= 60 && payload.temp_SCD >= -10)
+        point.floatField("temp_SCD", payload.temp_SCD);
       executed = true;
     }
     if (errorbyte.toString(2).slice(-3, -2) != "1") {
-      point
-        .floatField("PM10", payload.uplink_message.decoded_payload.PM10)
-        .floatField("PM2_5", payload.uplink_message.decoded_payload.PM2_5);
+      if (payload.PM10 <= 999 && payload.PM10 >= 0) {
+        point.floatField("PM10", payload.PM10);
+      }
+      if (payload.PM2_5 <= 999 && payload.PM2_5 >= 0) {
+        point.floatField("PM2_5", payload.PM2_5);
+      }
       executed = true;
     }
     if (errorbyte.toString(2).slice(-4, -3) != "1") {
@@ -88,14 +87,30 @@ client.on("message", function (topic, message) {
       point.booleanField("battery_low", true);
       executed = true;
     }
-    if (errorbyte.toString(2).slice(-5, -4) != "1") {
-      point
-        .floatField("latitude", payload.uplink_message.decoded_payload.lat)
-        .floatField("longitude", payload.uplink_message.decoded_payload.lon);
-      executed = true;
+    /*if (errorbyte.toString(2).slice(-5, -4) != "1") {
+      if (
+        payload.uplink_message.decoded_payload.lat <= 90 &&
+        payload.uplink_message.decoded_payload.lat >= -90
+      ) {
+        point.floatField(
+          "latitude",
+          payload.uplink_message.decoded_payload.lat
+        );
+      }
+      if (
+        (payload.uplink_message.decoded_payload.lon <= 180 &&
+        payload.uplink_message.decoded_payload.lon >= -180) && (payload.uplink_message.decoded_payload.lon.isNan())
+      ) {
+        point.floatField(
+          "longitude",
+          payload.uplink_message.decoded_payload.lon
+        );
+      }
+      executed = t rue;
+    }*/
+    if (executed) {
+      writeApi.writePoint(point);
     }
-    writeApi.writePoint(point);
-    
   }
 });
 
