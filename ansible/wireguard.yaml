@@ -7,4 +7,4 @@
     allowed_ips2: "10.10.10.3"
     listen_port: 51820
   roles:
-      - role: wireguard-setup
+    - role: wireguard-setup
