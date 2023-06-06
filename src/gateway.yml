@@ -81,5 +81,3 @@
       name: ssh
       state: restarted
 
-
-# kijken hoe je via ansible een cron file add dat die dan om dezoveel tijd runt
